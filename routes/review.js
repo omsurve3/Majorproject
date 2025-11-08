@@ -1,22 +1,39 @@
 const express = require("express");
-const router = express.Router({mergeParams:true});
-const wrapAsync = require("E:/Majorproject/utils/wrapAsync.js")
-const ExpressError = require("E:/Majorproject/utils/ExpressError.js");
-const {listingSchema,reviewSchema} = require("E:/Majorproject/schema.js");
-const Listing = require("E:/Majorproject/models/listing.js");
-const Review = require("E:/Majorproject/routes/review.js")
-const {validateReview} = require("../middleware.js")
+const router = express.Router({ mergeParams: true });
 
-const {isLoggedIn} =require("../middleware.js");
-const {isOwner} = require("../middleware.js");
-const {isReviewAuthor} =  require("../middleware.js");
+// ✅ Fixed relative imports
+const wrapAsync = require("../utils/wrapAsync.js");
+const ExpressError = require("../utils/ExpressError.js");
+const { listingSchema, reviewSchema } = require("../schema.js");
+const Listing = require("../models/listing.js");
+const Review = require("../models/review.js");
 
+// ✅ Import middleware in one place
+const {
+  validateReview,
+  isLoggedIn,
+  isReviewAuthor,
+} = require("../middleware.js");
+
+// ✅ Import controller
 const reviewController = require("../controllers/reviews.js");
 
-//Reviews route
-router.post("/",isLoggedIn,isReviewAuthor,validateReview,wrapAsync(reviewController.createreview));
- 
- //Delete review route
- router.delete("/:reviewId",isLoggedIn,isReviewAuthor,wrapAsync(reviewController.deletereview))
+// 🧭 Routes
 
- module.exports =router;
+// CREATE Review
+router.post(
+  "/",
+  isLoggedIn,
+  validateReview,
+  wrapAsync(reviewController.createReview)
+);
+
+// DELETE Review
+router.delete(
+  "/:reviewId",
+  isLoggedIn,
+  isReviewAuthor,
+  wrapAsync(reviewController.deleteReview)
+);
+
+module.exports = router;
